@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C++ Dojo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: module list on the left, one card at a time on the right: lesson steps first, then questions */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --fg:#17202b; --muted:#566476; --line:#d8dee7;
+  --accent:#1f4fd8; --accent-fg:#ffffff; --accent-soft:#e4ebfd;
+  --good:#1a7f4b; --good-soft:#dff5e8; --bad:#c2362b; --bad-soft:#fbe4e1;
+  --code-bg:#0f1621; --code-fg:#e6edf6; --kw-c:#7cc4ff; --st-c:#ffb86b; --cm-c:#8696a9; --nu-c:#c3a6ff; --note:#a9bbd0;
+  --display:"Sora",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1319; --surface:#161d27; --fg:#e7ecf3; --muted:#9aa8ba; --line:#2a3442;
+  --accent:#6b94ff; --accent-fg:#0b1120; --accent-soft:#1c2a4d;
+  --good:#4fd38a; --good-soft:#143324; --bad:#ff7b6e; --bad-soft:#3d1c19;
+  --code-bg:#0a0f16; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --surface:#161d27; --fg:#e7ecf3; --muted:#9aa8ba; --line:#2a3442;
+  --accent:#6b94ff; --accent-fg:#0b1120; --accent-soft:#1c2a4d;
+  --good:#4fd38a; --good-soft:#143324; --bad:#ff7b6e; --bad-soft:#3d1c19;
+  --code-bg:#0a0f16; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.6;margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:20px 48px}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;margin-bottom:18px}
+h1{font-family:var(--display);font-size:1.6rem;margin:0;letter-spacing:-.01em}
+h1 span{color:var(--accent)}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.pill{font-family:var(--mono);font-size:.8rem;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-variant-numeric:tabular-nums}
+.pill b{color:var(--accent)}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:760px){.layout{grid-template-columns:1fr}}
+nav{display:flex;flex-direction:column;gap:6px}
+@media (max-width:760px){nav{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}.navlabel{grid-column:1/-1}}
+.navlabel{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:2px 0}
+.mod{display:flex;align-items:center;gap:10px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px;cursor:pointer;color:var(--fg);font:inherit;font-size:.9rem;line-height:1.3}
+.mod:hover{border-color:var(--accent)}
+.mod.active{border-color:var(--accent);background:var(--accent-soft)}
+.mod .n{font-family:var(--mono);font-size:.75rem;color:var(--muted);width:1.4em;flex:none}
+.mod.done .n{color:var(--good)}
+.mod .bar{margin-left:auto;width:34px;height:6px;background:var(--line);border-radius:3px;overflow:hidden;flex:none}
+.mod .bar i{display:block;height:100%;background:var(--good)}
+.mixbtn{border-style:dashed}
+main{min-width:0;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px}
+h2{font-family:var(--display);font-size:1.4rem;margin:0 0 10px;text-wrap:balance;line-height:1.25}
+.modname{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.card p{margin:10px 0;max-width:62ch}
+.card ul{margin:10px 0;padding-left:1.3em;max-width:62ch}
+.card li{margin:4px 0}
+pre{font-family:var(--mono);font-size:.9rem;line-height:1.55;background:var(--code-bg);color:var(--code-fg);padding:14px 16px;border-radius:8px;overflow-x:auto;margin:12px 0}
+code{font-family:var(--mono);font-size:.88em;background:var(--accent-soft);padding:1px 6px;border-radius:4px}
+pre code{background:none;padding:0;font-size:inherit}
+.kw{color:var(--kw-c)}.st{color:var(--st-c)}.cm{color:var(--cm-c)}.nu{color:var(--nu-c)}
+.ann{background:var(--code-bg);border-radius:8px;padding:8px 0;margin:14px 0}
+.arow{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:4px 20px;padding:5px 16px;align-items:start}
+.arow code{background:none;padding:0;color:var(--code-fg);font-size:.9rem;white-space:pre;overflow-x:auto;line-height:1.5}
+.arow span{color:var(--note);font-size:.9rem;line-height:1.4;padding-top:2px}
+.arow span:empty{display:none}
+@media (max-width:620px){
+  .arow{grid-template-columns:minmax(0,1fr);gap:2px;padding-block:6px}
+  .arow span{padding-left:12px;border-left:2px solid var(--accent);margin-bottom:2px}
+}
+.hint{font-size:.9rem;color:var(--muted)}
+.stepinfo{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.qtype{font-family:var(--mono);font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:4px}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.prompt{font-weight:500;margin:0 0 6px}
+.choices{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.choice{text-align:left;font:inherit;font-size:1rem;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:11px 14px;cursor:pointer;color:var(--fg)}
+.choice code{background:none;padding:0;font-size:.95rem}
+.choice:hover:not(:disabled){border-color:var(--accent)}
+.choice.right{border-color:var(--good);background:var(--good-soft)}
+.choice.wrong{border-color:var(--bad);background:var(--bad-soft);opacity:.75}
+.choice:disabled{cursor:default}
+.lines{background:var(--code-bg);padding:8px 0;border-radius:8px;overflow-x:auto;margin-top:12px}
+.ln{display:flex;gap:14px;width:100%;font-family:var(--mono);font-size:.9rem;line-height:1.55;color:var(--code-fg);background:none;border:0;border-left:3px solid transparent;padding:3px 14px;text-align:left;cursor:pointer;white-space:pre}
+.ln:hover:not(:disabled){background:rgba(127,150,190,.18)}
+.ln.right{border-left-color:var(--good);background:rgba(79,211,138,.2)}
+.ln.wrong{border-left-color:var(--bad);background:rgba(255,123,110,.22)}
+.ln:disabled{cursor:default}
+.ln .no{color:var(--cm-c);width:1.5em;text-align:right;flex:none}
+.btn{font:inherit;font-weight:600;font-size:.95rem;padding:10px 18px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-fg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:focus-visible,.choice:focus-visible,.mod:focus-visible,.ln:focus-visible,.toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.feedback{margin-top:14px;padding:12px 14px;border-radius:8px;border-left:4px solid}
+.feedback.ok{background:var(--good-soft);border-color:var(--good)}
+.feedback.no{background:var(--bad-soft);border-color:var(--bad)}
+.feedback b{display:block}
+.feedback p{margin:4px 0}
+.hintbox{margin-top:12px;padding:10px 14px;border-radius:8px;background:var(--accent-soft);font-size:.95rem}
+.toggle{font:inherit;font-size:.92rem;background:none;border:0;color:var(--accent);cursor:pointer;padding:0;margin-top:12px;text-decoration:underline}
+.summary{text-align:center;padding:30px 20px}
+.summary .big{font-family:var(--display);font-size:2.6rem;color:var(--accent);font-variant-numeric:tabular-nums}
+.summary p{color:var(--muted);margin-inline:auto}
+@media (prefers-reduced-motion:reduce){.progress i{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <h1>C++ <span>Dojo</span></h1>
+  <div class="stats">
+    <span class="pill">XP <b id="xp">0</b></span>
+    <span class="pill">Streak <b id="streak">0</b></span>
+  </div>
+</header>
+<div class="layout">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+</div>
+
+<script>
+// ---------- helpers ----------
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const HL = /(\/\/.*)|("(?:[^"\\]|\\.)*")|(#include\s*<[^>]*>)|(\b\d+\.?\d*\b)|(\b(?:int|double|float|char|bool|void|string|return|if|else|for|while|true|false|vector|cout|endl|using|namespace|std)\b)|([\s\S])/g;
+function hl(src){
+  return src.replace(HL,(m,c,s,inc,n,k)=>{
+    if(c) return `<span class="cm">${esc(c)}</span>`;
+    if(s) return `<span class="st">${esc(s)}</span>`;
+    if(inc) return `<span class="kw">${esc(inc)}</span>`;
+    if(n) return `<span class="nu">${n}</span>`;
+    if(k) return `<span class="kw">${k}</span>`;
+    return esc(m);
+  });
+}
+const pre = c => `<pre><code>${hl(c)}</code></pre>`;
+const ann = rows => `<div class="ann">${rows.map(([c,n])=>`<div class="arow"><code>${hl(c)||' '}</code><span>${n||''}</span></div>`).join('')}</div>`;
+
+// ---------- content ----------
+// question types: mc (pick answer), out (pick what gets printed), fill (pick the missing word), line (click a line of code)
+const MODULES = [
+
+{ id:'first', title:'Your first program',
+  steps:[
+   { title:'What is code?',
+     html:`<p>A program is a list of instructions for the computer. The computer reads them <b>from the top down, one at a time</b>, and does exactly what each one says.</p>
+     <p>C++ is one language for writing those instructions. Robots, games, and apps are built with it.</p>` },
+   { title:'Your first program',
+     html:`<p>Here is a complete program. It prints <code>Hello!</code> on the screen. Read the note next to each line (or under it, on a phone).</p>`,
+     ann:[
+      ['#include <iostream>','Loads the tool we need to print'],
+      ['using namespace std;','Lets us write cout instead of std::cout'],
+      ['int main() {','Every program starts running here'],
+      ['    cout << "Hello!" << endl;','cout prints. endl moves to a new line'],
+      ['    return 0;','Means "all done, no problems"'],
+      ['}','Ends main']],
+     after:`<p class="hint">Don't memorize the top two lines yet. Just put them at the top of every program for now.</p>` },
+   { title:'Three small rules',
+     html:`<ul>
+      <li><b>Semicolons.</b> Most lines end with <code>;</code>, like a period at the end of a sentence.</li>
+      <li><b>Quotes.</b> Text you want to print goes inside <code>"double quotes"</code>. The quotes themselves don't show up on screen.</li>
+      <li><b>Comments.</b> Anything after <code>//</code> is a note for humans. The computer skips it.</li></ul>`,
+     ann:[['cout << "Hi"; // this part is ignored','Prints: Hi']] }
+  ],
+  questions:[
+   {t:'mc', q:'Where does a C++ program start running?', opts:['At the very last line','Inside <code>main()</code>','At the word <code>endl</code>','Wherever you click'], a:1,
+    hint:'Look back at the first program. Which line says "Every program starts running here"?',
+    why:'Every C++ program starts inside <code>main()</code>.'},
+   {t:'out', code:'cout << "Hi" << endl;', opts:['Hi','"Hi"','cout','Hi endl'], a:0,
+    hint:'Quotes mark where the text starts and ends. They are not part of the text.',
+    why:'The quotes tell C++ what to print, but they don\'t get printed. <code>endl</code> just moves to a new line.'},
+   {t:'mc', q:'What does <code>//</code> do in a line of code?', opts:['Divides two numbers','Starts a comment, which the computer ignores','Prints a slash','Ends the program'], a:1,
+    hint:'It is a note for humans.',
+    why:'Everything after <code>//</code> on that line is a comment. Use comments to explain your code to yourself.'},
+   {t:'line', q:'One line is missing something. Click it.', code:`int main() {
+    cout << "Hello"
+    return 0;
+}`, a:1,
+    hint:'Look at the end of each line. Most lines should finish with the same symbol.',
+    why:'Line 2 is missing its semicolon. Forgetting <code>;</code> is the most common beginner mistake.'},
+   {t:'mc', q:'What does <code>endl</code> do?', opts:['Ends the program','Moves to a new line','Deletes the last word','Nothing'], a:1,
+    hint:'Think of pressing Enter on a keyboard.',
+    why:'<code>endl</code> means "end line". It is like pressing Enter.'}
+  ]},
+
+{ id:'vars', title:'Variables',
+  steps:[
+   { title:'Variables are labeled boxes',
+     html:`<p>A <b>variable</b> is a box with a name on it. You put a value inside. Later you can look inside the box, or swap the value for something else.</p>
+     <p>When you make one, you also pick a <b>type</b>. The type says what kind of thing the box can hold.</p>` },
+   { title:'Four types you\'ll use a lot',
+     ann:[
+      ['int lives = 3;','int: whole numbers, no decimal point'],
+      ['double speed = 2.5;','double: numbers with a decimal point'],
+      ['bool alive = true;','bool: only true or false'],
+      ['string name = "Colin";','string: text, in double quotes']],
+     after:`<p>The pattern is always: <code>type name = value;</code></p>
+     <p class="hint">Using strings also needs <code>#include &lt;string&gt;</code> at the top.</p>` },
+   { title:'Changing a variable',
+     ann:[
+      ['int lives = 3;','Make the box and put 3 in it'],
+      ['lives = 2;','Replace the 3 with 2. No type word this time, the box already exists'],
+      ['cout << lives;','Prints: 2']],
+     after:`<p>A box holds <b>one value at a time</b>. A new value replaces the old one.</p>
+     <p>Names can't have spaces and can't start with a number.</p>` }
+  ],
+  questions:[
+   {t:'mc', q:'Which type is best for storing the number <code>12</code>?', opts:['<code>int</code>','<code>double</code>','<code>string</code>','<code>bool</code>'], a:0,
+    hint:'12 is a whole number with no decimal point.',
+    why:'<code>int</code> holds whole numbers.'},
+   {t:'mc', q:'Which type is best for storing <code>3.14</code>?', opts:['<code>int</code>','<code>double</code>','<code>string</code>','<code>bool</code>'], a:1,
+    hint:'It has a decimal point.',
+    why:'<code>double</code> holds numbers with decimals. An <code>int</code> would chop off the .14.'},
+   {t:'mc', q:'Which line correctly makes a variable called <code>age</code> that holds 15?', opts:['<code>int age = 15;</code>','<code>age int = 15;</code>','<code>int age 15;</code>','<code>15 = int age;</code>'], a:0,
+    hint:'The pattern is: type, then name, then = value, then a semicolon.',
+    why:'<code>type name = value;</code> is the pattern. The others have things in the wrong order or are missing the <code>=</code>.'},
+   {t:'out', code:`int x = 5;
+x = 9;
+cout << x;`, opts:['5','9','14','x'], a:1,
+    hint:'A box holds one value. What happens to the old value when you put in a new one?',
+    why:'<code>x = 9;</code> replaces the 5. The box now holds 9, so 9 is printed.'},
+   {t:'fill', q:'Pick the missing type:', code:`____ name = "Colin";`, opts:['int','double','string','bool'], a:2,
+    hint:'The value is text in double quotes.',
+    why:'Text is stored in a <code>string</code>.'}
+  ]},
+
+{ id:'math', title:'Math',
+  steps:[
+   { title:'C++ is a calculator',
+     ann:[
+      ['int a = 6 + 2;','Add: a is 8'],
+      ['int b = 6 - 2;','Subtract: b is 4'],
+      ['int c = 6 * 2;','Multiply uses *: c is 12'],
+      ['int d = 6 / 2;','Divide uses /: d is 3']] },
+   { title:'Heads up: dividing whole numbers',
+     html:`<p>When you divide two <code>int</code>s, C++ gives back a whole number. It just chops off the decimal part. It does <b>not</b> round.</p>`,
+     ann:[
+      ['cout << 7 / 2;','Prints 3, not 3.5'],
+      ['cout << 7.0 / 2;','Prints 3.5 (one number has a decimal)']],
+     after:`<p>If you want the decimal answer, make at least one of the numbers a decimal, like <code>7.0</code>.</p>` },
+   { title:'Remainders and shortcuts',
+     html:`<p><code>%</code> gives the <b>remainder</b>, the amount left over after dividing. 10 ÷ 3 is 3 with 1 left over, so <code>10 % 3</code> is 1.</p>`,
+     ann:[
+      ['cout << 10 % 3;','Prints 1'],
+      ['int x = 5;','x starts at 5'],
+      ['x++;','Add 1: x is now 6'],
+      ['x += 4;','Add 4: x is now 10']] }
+  ],
+  questions:[
+   {t:'out', code:`int x = 4;
+int y = 3;
+cout << x * y;`, opts:['7','12','43','xy'], a:1,
+    hint:'* means multiply.',
+    why:'4 times 3 is 12.'},
+   {t:'out', code:`cout << 9 / 2;`, opts:['4.5','4','5','4.0'], a:1,
+    hint:'Both numbers are whole numbers, so the answer is a whole number too. Decimals get chopped off.',
+    why:'9 ÷ 2 is 4.5, but both are ints, so C++ drops the .5 and gives 4.'},
+   {t:'out', code:`cout << 10 % 3;`, opts:['3','1','0','3.33'], a:1,
+    hint:'% is the remainder. How much is left over when you split 10 into groups of 3?',
+    why:'3 fits into 10 three times (that uses 9), leaving 1.'},
+   {t:'out', code:`cout << 9.0 / 2;`, opts:['4','4.5','5','Error'], a:1,
+    hint:'One of the numbers has a decimal point this time.',
+    why:'Because 9.0 is a decimal number, C++ keeps the decimal in the answer: 4.5.'},
+   {t:'out', code:`int x = 10;
+x += 5;
+cout << x;`, opts:['5','10','15','x'], a:2,
+    hint:'+= means "add this to what is already there".',
+    why:'<code>x += 5;</code> adds 5 to x. 10 + 5 is 15.'}
+  ]},
+
+{ id:'if', title:'Making decisions',
+  steps:[
+   { title:'Do something only if...',
+     html:`<p>An <code>if</code> runs some code <b>only when</b> something is true.</p>`,
+     ann:[
+      ['int hp = 30;','hp is 30'],
+      ['if (hp > 0) {','If hp is bigger than 0...'],
+      ['    cout << "alive";','...print alive'],
+      ['}','Otherwise skip all of that']] },
+   { title:'else and else if',
+     html:`<p>Add <code>else</code> to mean "otherwise". The computer checks from the top and runs <b>only the first one that is true</b>, then skips the rest.</p>`,
+     ann:[
+      ['if (hp > 50) {','Is hp over 50?'],
+      ['    cout << "strong";',''],
+      ['} else if (hp > 0) {','If not, is hp over 0?'],
+      ['    cout << "hurt";',''],
+      ['} else {','If neither was true...'],
+      ['    cout << "down";',''],
+      ['}','']] },
+   { title:'Comparing things',
+     html:`<ul>
+      <li><code>==</code> equal to</li>
+      <li><code>!=</code> not equal to</li>
+      <li><code>&lt;</code> less than, <code>&gt;</code> greater than</li>
+      <li><code>&lt;=</code> less than or equal, <code>&gt;=</code> greater than or equal</li></ul>
+      <p><b>Big gotcha:</b> one <code>=</code> <i>stores</i> a value. Two <code>==</code> <i>ask</i> whether two things are equal. Inside an <code>if</code>, you almost always want <code>==</code>.</p>` }
+  ],
+  questions:[
+   {t:'mc', q:'Which symbol asks "are these two things equal?"', opts:['<code>=</code>','<code>==</code>','<code>!=</code>','<code>=&gt;</code>'], a:1,
+    hint:'It is two of the same symbol.',
+    why:'<code>==</code> compares. A single <code>=</code> stores a value.'},
+   {t:'out', code:`int hp = 30;
+if (hp > 50) {
+    cout << "strong";
+} else if (hp > 0) {
+    cout << "hurt";
+} else {
+    cout << "down";
+}`, opts:['strong','hurt','down','hurt down'], a:1,
+    hint:'Go top to bottom. Is 30 bigger than 50? No. Then check the next one.',
+    why:'30 is not over 50, so skip. 30 is over 0, so it prints "hurt" and skips the rest.'},
+   {t:'out', code:`int age = 12;
+if (age >= 13) {
+    cout << "teen";
+} else {
+    cout << "kid";
+}`, opts:['teen','kid','age','nothing prints'], a:1,
+    hint:'>= means "greater than or equal to". Is 12 at least 13?',
+    why:'12 is not 13 or more, so the <code>else</code> part runs and prints "kid".'},
+   {t:'line', q:'One line has a mistake. Click it.', code:`int lives = 3;
+if (lives = 0) {
+    cout << "dead";
+}`, a:1,
+    hint:'Look at the symbols inside the parentheses. Is it asking a question, or storing a value?',
+    why:'<code>lives = 0</code> stores 0 into lives. It should be <code>lives == 0</code> to ask the question.'},
+   {t:'out', code:`int score = 85;
+if (score > 50) {
+    cout << "pass";
+} else if (score > 80) {
+    cout << "great";
+}`, opts:['pass','great','pass great','nothing prints'], a:0,
+    hint:'The computer stops at the first one that is true.',
+    why:'85 is over 50, so "pass" prints. The computer never even checks the <code>else if</code> after that.'}
+  ]},
+
+{ id:'loops', title:'Loops',
+  steps:[
+   { title:'Repeating things',
+     html:`<p>A <b>loop</b> runs the same code again and again. Say you want to print "go " three times. Instead of writing three lines, use a loop:</p>`,
+     ann:[
+      ['for (int i = 0; i < 3; i++) {','Repeat while i is less than 3'],
+      ['    cout << "go ";','Prints "go " each lap'],
+      ['}','Result: go go go']] },
+   { title:'How the for loop counts',
+     html:`<p>The part in parentheses has three pieces:</p>
+     <ul><li><code>int i = 0;</code> start: i begins at 0</li>
+     <li><code>i &lt; 3;</code> keep going while this is true</li>
+     <li><code>i++</code> after each lap, add 1 to i</li></ul>
+     <p>So the laps go like this: i is 0, then 1, then 2. When i becomes 3, the check <code>3 &lt; 3</code> is false and the loop stops. That is 3 laps.</p>
+     <p class="hint">Programmers count from 0, so you'll see <code>i = 0</code> everywhere.</p>` },
+   { title:'The while loop',
+     html:`<p><code>while</code> repeats as long as something stays true. This one counts down:</p>`,
+     ann:[
+      ['int n = 3;','Start at 3'],
+      ['while (n > 0) {','Keep going while n is above 0'],
+      ['    cout << n;','Print n'],
+      ['    n--;','Subtract 1 from n'],
+      ['}','Result: 321']],
+     after:`<p><b>Careful:</b> if the condition never becomes false, the loop never stops. That is called an infinite loop.</p>` }
+  ],
+  questions:[
+   {t:'mc', q:'How many times does this loop run? <code>for (int i = 0; i &lt; 4; i++)</code>', opts:['3','4','5','0'], a:1,
+    hint:'i takes the values 0, 1, 2, 3. Count them.',
+    why:'i is 0, 1, 2, 3. That is 4 laps. When i hits 4, the check fails.'},
+   {t:'out', code:`for (int i = 1; i <= 3; i++) {
+    cout << i;
+}`, opts:['123','012','1234','3'], a:0,
+    hint:'i starts at 1. The loop keeps going while i is 3 or less.',
+    why:'i is 1, 2, 3. Each lap prints i, so you get 123.'},
+   {t:'out', code:`int n = 3;
+while (n > 0) {
+    cout << n;
+    n--;
+}`, opts:['321','123','3','210'], a:0,
+    hint:'n starts at 3 and goes down by 1 each lap.',
+    why:'It prints 3, then 2, then 1. When n is 0, the check fails and it stops.'},
+   {t:'out', code:`int total = 0;
+for (int i = 1; i <= 3; i++) {
+    total += i;
+}
+cout << total;`, opts:['3','5','6','123'], a:2,
+    hint:'total starts at 0. Lap 1 adds 1, lap 2 adds 2, lap 3 adds 3.',
+    why:'0 + 1 + 2 + 3 = 6. The cout is after the loop, so it prints once.'},
+   {t:'line', q:'This loop never stops. Click the line causing the problem.', code:`int main() {
+    for (int i = 0; i < 5; i--) {
+        cout << "hi";
+    }
+}`, a:1,
+    hint:'<code>i--</code> makes i smaller each lap. Will it ever reach 5?',
+    why:'i goes 0, -1, -2... and is always less than 5. It should be <code>i++</code>.'}
+  ]},
+
+{ id:'funcs', title:'Functions',
+  steps:[
+   { title:'Functions are reusable recipes',
+     html:`<p>A <b>function</b> is a chunk of code with a name. Write it once, then use it as many times as you want. Many functions take something in (like a number), do some work, and hand back an answer using <code>return</code>.</p>`,
+     ann:[
+      ['int doubleIt(int x) {','Name: doubleIt. Takes in an int called x. Gives back an int'],
+      ['    return x * 2;','Hand back x times 2'],
+      ['}','']] },
+   { title:'Using a function',
+     html:`<p>Using a function is called <b>calling</b> it. Put the function above <code>main</code>, then call it by name with a value in parentheses.</p>`,
+     ann:[
+      ['int doubleIt(int x) {','(the function from before)'],
+      ['    return x * 2;',''],
+      ['}',''],
+      ['int main() {',''],
+      ['    cout << doubleIt(5);','Calls doubleIt with 5. It hands back 10, so this prints 10'],
+      ['}','']] },
+   { title:'Functions that give nothing back',
+     html:`<p>If a function just does something (like printing) and has nothing to hand back, its type is <code>void</code>, which means "nothing".</p>`,
+     ann:[
+      ['void sayHi() {','void: gives nothing back'],
+      ['    cout << "Hi!";',''],
+      ['}',''],
+      ['int main() {',''],
+      ['    sayHi();','Calls it. Prints: Hi!'],
+      ['}','']] }
+  ],
+  questions:[
+   {t:'out', code:`int doubleIt(int x) {
+    return x * 2;
+}
+int main() {
+    cout << doubleIt(4);
+}`, opts:['4','8','doubleIt','2'], a:1,
+    hint:'Put 4 in for x. What is x * 2?',
+    why:'doubleIt(4) hands back 4 * 2, which is 8.'},
+   {t:'mc', q:'What does <code>return</code> do?', opts:['Prints a value on the screen','Hands a value back to the code that called the function','Starts the function over','Deletes the function'], a:1,
+    hint:'Think of a function as a recipe. return is the finished dish you get back.',
+    why:'<code>return</code> sends an answer back to wherever the function was called.'},
+   {t:'fill', q:'Pick the type for a function that gives nothing back:', code:`____ sayHi() {
+    cout << "Hi!";
+}`, opts:['int','void','string','bool'], a:1,
+    hint:'The lesson said this word means "nothing".',
+    why:'<code>void</code> means the function returns nothing.'},
+   {t:'out', code:`int add(int a, int b) {
+    return a + b;
+}
+int main() {
+    cout << add(2, 3);
+}`, opts:['23','5','6','add'], a:1,
+    hint:'a is 2 and b is 3. The function adds them as numbers.',
+    why:'It adds the numbers (2 + 3), it doesn\'t stick them together.'},
+   {t:'line', q:'Click the line where the function is <b>called</b> (used).', code:`int square(int n) {
+    return n * n;
+}
+int main() {
+    cout << square(3);
+}`, a:4,
+    hint:'Calling means using the function\'s name with a value in parentheses, usually inside main.',
+    why:'Line 5 calls <code>square</code> with 3. It hands back 9, so 9 is printed. Lines 1 to 3 just define the function.'}
+  ]},
+
+{ id:'lists', title:'Lists (vectors)',
+  steps:[
+   { title:'A vector is a list',
+     html:`<p>What if you need to store 20 scores? You don't want 20 variables. A <b>vector</b> is one variable that holds a whole list of values, in order. Add <code>#include &lt;vector&gt;</code> at the top to use it.</p>`,
+     ann:[
+      ['vector<int> scores = {90, 85, 77};','A list of three ints'],
+      ['cout << scores[0];','The first item. Prints 90'],
+      ['cout << scores[2];','The third item. Prints 77']] },
+   { title:'Counting starts at 0',
+     html:`<p>This trips up everyone at first. The first item is at position <b>0</b>, not 1.</p>
+     <ul><li>position 0 → 90</li><li>position 1 → 85</li><li>position 2 → 77</li></ul>
+     <p>A list with 3 items has positions 0, 1, and 2. The last position is always <b>one less than the size</b>.</p>` },
+   { title:'Adding items and looping',
+     ann:[
+      ['scores.push_back(60);','Add 60 to the end'],
+      ['cout << scores.size();','How many items: prints 4'],
+      ['for (int i = 0; i < scores.size(); i++) {','Visit every position'],
+      ['    cout << scores[i] << " ";','Print each item'],
+      ['}','Result: 90 85 77 60']] }
+  ],
+  questions:[
+   {t:'out', code:`vector<int> v = {5, 10, 15};
+cout << v[0];`, opts:['0','5','10','15'], a:1,
+    hint:'Position 0 is the first item.',
+    why:'Counting starts at 0, so <code>v[0]</code> is the first item: 5.'},
+   {t:'out', code:`vector<int> v = {5, 10, 15};
+cout << v[2];`, opts:['10','15','2','Error'], a:1,
+    hint:'Positions go 0, 1, 2. What is at position 2?',
+    why:'Position 2 is the third item: 15.'},
+   {t:'out', code:`vector<int> v = {1, 2};
+v.push_back(3);
+cout << v.size();`, opts:['2','3','6','1'], a:1,
+    hint:'push_back adds an item. How many items are in the list now?',
+    why:'The list started with 2 items. After adding 3 it has 3 items.'},
+   {t:'mc', q:'A list has 4 items. What is the position of the last one?', opts:['4','3','5','0'], a:1,
+    hint:'The positions are 0, 1, 2, and then...',
+    why:'The positions are 0, 1, 2, 3. The last position is always size minus 1.'},
+   {t:'fill', q:'Pick the word that adds 7 to the end of the list <code>v</code>:', code:`v.____(7);`, opts:['push_back','size','add','append'], a:0,
+    hint:'You "push" the new item onto the "back" of the list.',
+    why:'<code>push_back</code> adds an item to the end of a vector.'}
+  ]}
+];
+
+// ---------- state ----------
+let state = { xp:0, streak:0, best:{} };
+try { const s = localStorage.getItem('cppdojo2'); if (s) state = {...state, ...JSON.parse(s)}; } catch(e){}
+function save(){ try{ localStorage.setItem('cppdojo2', JSON.stringify(state)); }catch(e){} }
+function renderStats(){
+  document.getElementById('xp').textContent = state.xp;
+  document.getElementById('streak').textContent = state.streak;
+}
+const stage = document.getElementById('main');
+let session = null;
+
+// ---------- nav ----------
+function renderNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = '<div class="navlabel">Go in order</div>';
+  MODULES.forEach((m,idx)=>{
+    const best = state.best[m.id]||0, n = m.questions.length;
+    const done = best >= Math.ceil(n*0.8);
+    const b = document.createElement('button');
+    b.className = 'mod' + (session && session.mod===m ? ' active':'') + (done?' done':'');
+    b.innerHTML = `<span class="n">${done?'✓':idx+1}</span><span>${m.title}</span><span class="bar"><i style="width:${best/n*100}%"></i></span>`;
+    b.onclick = ()=>startModule(m);
+    nav.appendChild(b);
+  });
+  const mix = document.createElement('button');
+  mix.className = 'mod mixbtn' + (session && session.mod.id==='mix' ? ' active':'');
+  mix.innerHTML = '<span class="n">+</span><span>Mixed review (10)</span>';
+  mix.onclick = startMix;
+  nav.appendChild(mix);
+}
+
+// ---------- flow ----------
+function startModule(m, skipLesson){
+  session = { mod:m, step:0, qs:m.questions, i:0, correct:0, phase: skipLesson ? 'quiz' : 'lesson' };
+  renderNav(); render();
+}
+function startMix(){
+  const all = MODULES.flatMap(m=>m.questions.map(q=>({...q, from:m.title})));
+  for (let i=all.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+  const qs = all.slice(0,10);
+  session = { mod:{id:'mix', title:'Mixed review', steps:[], questions:qs}, step:0, qs, i:0, correct:0, phase:'quiz' };
+  renderNav(); render();
+}
+
+function render(){
+  if (!session) return renderWelcome();
+  if (session.phase==='lesson') return renderLesson();
+  if (session.i >= session.qs.length) return renderSummary();
+  renderQuestion();
+}
+
+function renderWelcome(){
+  stage.innerHTML = `<div class="card">
+    <h2>Learn C++ from zero</h2>
+    <p>No experience needed. Each module has a few short lesson steps, then 5 practice questions.</p>
+    <ul>
+      <li>Wrong answers are fine. You can try again.</li>
+      <li>Stuck? Tap <b>Need a hint?</b> on any question.</li>
+      <li>Want to run the code for real? Paste any example into an online C++ compiler.</li>
+    </ul>
+    <div class="actions"><button class="btn" id="start">Start with module 1: ${MODULES[0].title}</button></div></div>`;
+  document.getElementById('start').onclick = ()=>startModule(MODULES[0]);
+}
+
+function renderLesson(){
+  const s = session, st = s.mod.steps[s.step], n = s.mod.steps.length, last = s.step===n-1;
+  stage.innerHTML = `<div class="card">
+    <div class="modname">Module ${MODULES.indexOf(s.mod)+1} · ${s.mod.title}</div>
+    <div class="stepinfo"><span>Lesson</span><span>Step ${s.step+1} of ${n}</span></div>
+    <div class="progress"><i style="width:${(s.step+1)/n*100}%"></i></div>
+    <h2>${st.title}</h2>${st.html||''}${st.ann?ann(st.ann):''}${st.after||''}
+    <div class="actions">${s.step>0?'<button class="btn ghost" id="back">← Back</button>':''}
+    <button class="btn" id="fwd">${last?'Start the 5 questions →':'Next →'}</button></div></div>`;
+  const bk = document.getElementById('back'); if (bk) bk.onclick = ()=>{ s.step--; render(); };
+  document.getElementById('fwd').onclick = ()=>{ if(last){ s.phase='quiz'; } else s.step++; render(); };
+}
+
+const TYPE_LABEL = {mc:'Multiple choice', out:'What gets printed?', fill:'Fill the blank', line:'Click the line'};
+function renderQuestion(){
+  const s = session, q = s.qs[s.i];
+  s.tries = 0; s.solved = false;
+  let body = '';
+  if (q.t==='line'){
+    body = `<p class="prompt">${q.q}</p><div class="lines">${q.code.split('\n').map((l,i)=>`<button class="ln" data-i="${i}"><span class="no">${i+1}</span><span>${hl(l)||' '}</span></button>`).join('')}</div>`;
+  } else {
+    const prompt = q.t==='out' ? 'What gets printed on the screen?' : q.q;
+    const code = q.code ? pre(q.code) : '';
+    const label = o => q.t==='mc' ? o : `<code>${esc(o)}</code>`;
+    body = `<p class="prompt">${prompt}</p>${code}<div class="choices">${q.opts.map((o,i)=>`<button class="choice" data-i="${i}">${label(o)}</button>`).join('')}</div>`;
+  }
+  const sel = q.t==='line' ? '.ln' : '.choice';
+  stage.innerHTML = `<div class="card">
+    <div class="modname">${s.mod.id==='mix' ? q.from : 'Module '+(MODULES.indexOf(s.mod)+1)+' · '+s.mod.title}</div>
+    <div class="progress"><i style="width:${s.i/s.qs.length*100}%"></i></div>
+    <div class="qhead"><span class="qtype">${TYPE_LABEL[q.t]}</span><span class="hint">Question ${s.i+1} of ${s.qs.length}</span></div>
+    ${body}
+    <button class="toggle" id="hintbtn">Need a hint?</button>
+    <div class="hintbox" id="hintbox" hidden><b>Hint:</b> ${q.hint}</div>
+    <div id="fb"></div></div>`;
+  document.getElementById('hintbtn').onclick = ()=>{ document.getElementById('hintbox').hidden = false; document.getElementById('hintbtn').hidden = true; };
+  stage.querySelectorAll(sel).forEach(b=>b.onclick = ()=>pick(b, +b.dataset.i, sel));
+}
+
+function pick(el, i, sel){
+  const s = session, q = s.qs[s.i], fb = document.getElementById('fb');
+  if (s.solved) return;
+  if (i === q.a){
+    s.solved = true;
+    el.classList.add('right');
+    stage.querySelectorAll(sel).forEach(x=>{ x.disabled = true; });
+    let gained = 0;
+    if (s.tries===0){ s.correct++; state.streak++; gained = 10 + (state.streak>=3 ? 5 : 0); }
+    else gained = s.tries===1 ? 5 : 2;
+    state.xp += gained; save(); renderStats();
+    document.getElementById('hintbtn').hidden = true;
+    document.getElementById('hintbox').hidden = true;
+    fb.innerHTML = `<div class="feedback ok"><b>${s.tries===0?'Yes!':'There it is.'} +${gained} XP</b><p>${q.why}</p></div>
+      <div class="actions"><button class="btn" id="next">${s.i+1<s.qs.length?'Next question →':'See results'}</button></div>`;
+    const nb = document.getElementById('next'); nb.onclick = ()=>{ s.i++; render(); }; nb.focus();
+  } else {
+    el.classList.add('wrong'); el.disabled = true;
+    if (s.tries===0){ state.streak = 0; save(); renderStats(); }
+    s.tries++;
+    document.getElementById('hintbtn').hidden = true;
+    document.getElementById('hintbox').hidden = false;
+    fb.innerHTML = `<div class="feedback no"><b>Not quite. That's fine, pick another one.</b></div>`;
+  }
+}
+
+function renderSummary(){
+  const s = session, n = s.qs.length;
+  if (s.mod.id!=='mix'){ state.best[s.mod.id] = Math.max(state.best[s.mod.id]||0, s.correct); save(); }
+  renderNav();
+  const pct = s.correct/n;
+  const msg = pct===1 ? 'Perfect. You\'ve got this one.' : pct>=0.8 ? 'Solid. You\'re ready for the next module.' : pct>=0.5 ? 'Getting there. Reread the lesson, then try again.' : 'Tough round, and that\'s normal. Reread the lesson, then try again. It clicks faster than you think.';
+  const idx = MODULES.indexOf(s.mod), next = MODULES[idx+1];
+  stage.innerHTML = `<div class="card summary"><div class="big">${s.correct} / ${n}</div><h2>${s.mod.title}</h2>
+    <p>Right on the first try. ${msg}</p>
+    <div class="actions" style="justify-content:center">
+      ${s.mod.id!=='mix' ? '<button class="btn ghost" id="lesson">Reread lesson</button>' : ''}
+      <button class="btn ghost" id="again">Try again</button>
+      ${next && s.mod.id!=='mix' ? `<button class="btn" id="nextmod">Next: ${next.title} →</button>` : `<button class="btn" id="mix">Mixed review</button>`}
+    </div></div>`;
+  const ls = document.getElementById('lesson'); if (ls) ls.onclick = ()=>startModule(s.mod);
+  document.getElementById('again').onclick = ()=> s.mod.id==='mix' ? startMix() : startModule(s.mod, true);
+  const nm = document.getElementById('nextmod'); if (nm) nm.onclick = ()=>startModule(next);
+  const mx = document.getElementById('mix'); if (mx) mx.onclick = startMix;
+}
+
+renderStats(); renderNav(); render();
+</script>
+</body>
+</html>
